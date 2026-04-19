@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}الإشعارات - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">الإشعارات</h1>
+    <p class="page-desc">
+        {% if unread_count > 0 %}
+        لديك <strong>{{ unread_count }}</strong> إشعار غير مقروء
+        {% else %}
+        جميع الإشعارات مقروءة
+        {% endif %}
+    </p>
+</div>
+
+<!-- Filters -->
+<div class="filter-row">
+    <a href="?read=all" class="filter-pill {% if read_filter == 'all' %}active{% endif %}">
+        الكل
+        <span class="filter-badge">{{ page_obj.paginator.count }}</span>
+    </a>
+    <a href="?read=unread" class="filter-pill {% if read_filter == 'unread' %}active{% endif %}">
+        غير مقروء
+        {% if unread_count > 0 %}<span class="filter-badge accent">{{ unread_count }}</span>{% endif %}
+    </a>
+    <a href="?read=read" class="filter-pill {% if read_filter == 'read' %}active{% endif %}">
+        مقروء
+    </a>
+    {% if unread_count > 0 %}
+    <button class="btn btn-primary" onclick="markAllReadPage()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        تعليم الكل كمقروء
+    </button>
+    {% endif %}
+</div>
+
+{% if page_obj %}
+<div class="notifications-list">
+    {% for n in page_obj %}
+    <div class="notif-page-item {% if not n.read %}unread{% endif %}" id="notif-{{ n.id }}">
+        <div class="notif-page-icon">
+            {% if n.type == 'approved' %}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            {% elif n.type == 'rejected' %}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            {% else %}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+            {% endif %}
+        </div>
+        <div class="notif-page-content">
+            <div class="notif-page-text">{{ n.message }}</div>
+            <div class="notif-page-meta">
+                <span>{{ n.created_at|date:"Y/m/d H:i" }}</span>
+                {% if n.appointment %}
+                <a href="{% url 'appointment_detail' n.appointment.pk %}">عرض الحجز</a>
+                {% endif %}
+                {% if not n.read %}
+                <button onclick="markReadPage({{ n.id }}, this)">تعليم كمقروء</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?read={{ read_filter }}&page={{ page_obj.previous_page_number }}" class="pagination-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        السابق
+    </a>
+    {% else %}
+    <span class="pagination-link disabled">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        السابق
+    </span>
+    {% endif %}
+
+    <div class="pagination-pages">
+        {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <span class="pagination-page active">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?read={{ read_filter }}&page={{ num }}" class="pagination-page">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_next %}
+    <a href="?read={{ read_filter }}&page={{ page_obj.next_page_number }}" class="pagination-link">
+        التالي
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </a>
+    {% else %}
+    <span class="pagination-link disabled">
+        التالي
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+    <p class="empty-title">لا توجد إشعارات</p>
+    <p class="empty-desc">{% if read_filter == 'all' %}لم تصلك أي إشعارات حتى الآن{% else %}لا توجد إشعارات بهذا الفلتر{% endif %}</p>
+</div>
+{% endif %}
+
+<script>
+function markReadPage(id, btn) {
+    fetch(`/api/notifications/${id}/read/`)
+        .then(() => {
+            const el = document.getElementById('notif-' + id);
+            if (el) el.classList.remove('unread');
+            if (btn) btn.remove();
+        });
+}
+function markAllReadPage() {
+    fetch('/api/notifications/read-all/')
+        .then(() => {
+            document.querySelectorAll('.notif-page-item').forEach(el => el.classList.remove('unread'));
+            document.querySelectorAll('.notif-page-meta button').forEach(btn => btn.remove());
+            location.reload();
+        });
+}
+</script>
+{% endblock %}

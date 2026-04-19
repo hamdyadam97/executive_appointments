@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load calendar_extras %}
+{% block title %}الكاليندر - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">الكاليندر</h1>
+    <p class="page-desc">اختر وقتًا متاحًا لحجز موعد مع المدير التنفيذي</p>
+</div>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <div class="calendar-nav">
+            <a href="?week={{ week_offset|add:1 }}" class="calendar-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
+            <a href="?week={{ week_offset|add:-1 }}" class="calendar-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <h2 class="calendar-title">الأسبوع من {{ week_start|date:"d M" }} إلى {{ week_end|date:"d M Y" }}</h2>
+        </div>
+        <a href="?week=0" class="btn-today">اليوم</a>
+    </div>
+
+    <div class="calendar-wrapper">
+        <div class="calendar-grid">
+            <!-- Header Row -->
+            <div class="cal-header-cell cal-time-header">الوقت</div>
+            {% for day in week_days %}
+            <div class="cal-header-cell {% if day == today %}cal-today-header{% endif %}">
+                <div class="cal-day-name">{% if day.weekday == 5 %}السبت{% elif day.weekday == 6 %}الأحد{% elif day.weekday == 0 %}الإثنين{% elif day.weekday == 1 %}الثلاثاء{% elif day.weekday == 2 %}الأربعاء{% elif day.weekday == 3 %}الخميس{% else %}الجمعة{% endif %}</div>
+                <div class="cal-day-date {% if day == today %}cal-today-text{% endif %}">{{ day|date:"d/m" }}</div>
+            </div>
+            {% endfor %}
+
+            <!-- Time Labels Column -->
+            <div class="cal-time-col">
+                {% for slot in time_slots %}
+                <div class="cal-time-label">{{ slot }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Day Columns -->
+            {% for day in week_days %}
+            {% with day_str=day|date:"Y-m-d" %}
+            <div class="cal-day-col">
+                {% for slot in time_slots %}
+                    {% with cell=grid_data|dict_key:day_str|dict_key:slot %}
+                        {% if cell.type == 'free' %}
+                            <a href="#" class="cal-slot cal-slot-free"
+                               onclick="openModal('{{ day_str }}', '{{ slot }}'); return false;"></a>
+                        {% else %}
+                            {% if cell.is_start %}
+                            <div class="cal-slot cal-slot-apt status-{{ cell.type }}">
+                                <span class="apt-text">{{ cell.appointment.employee.name }}</span>
+                                <span class="apt-sub">{{ cell.appointment.status_label }}</span>
+                            </div>
+                            {% else %}
+                            <div class="cal-slot cal-slot-apt-cont status-{{ cell.type }}"></div>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="calendar-legend">
+        <div class="legend-item"><div class="legend-box" style="background:var(--success-light);border-color:var(--success)"></div><span>محجوز</span></div>
+        <div class="legend-item"><div class="legend-box" style="background:var(--accent-light);border-color:var(--accent-primary)"></div><span>قيد المراجعة</span></div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="appointmentModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>طلب حجز موعد</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="post" action="{% url 'create_appointment' %}" class="modal-form">
+            {% csrf_token %}
+            <input type="hidden" name="day" id="modalDay">
+
+            <div class="form-group">
+                <label>اليوم</label>
+                <div class="form-static" id="modalDayDisplay"></div>
+            </div>
+
+            <div class="form-group">
+                <label>من الساعة</label>
+                <select name="start_time" class="form-select" id="modalTime">
+                    {% for h in "89abcdef" %}
+                    <option value="0{{ h }}:00">0{{ h }}:00</option>
+                    <option value="0{{ h }}:30">0{{ h }}:30</option>
+                    {% endfor %}
+                    <option value="10:00">10:00</option>
+                    <option value="10:30">10:30</option>
+                    <option value="11:00">11:00</option>
+                    <option value="11:30">11:30</option>
+                    <option value="12:00">12:00</option>
+                    <option value="12:30">12:30</option>
+                    <option value="13:00">13:00</option>
+                    <option value="13:30">13:30</option>
+                    <option value="14:00">14:00</option>
+                    <option value="14:30">14:30</option>
+                    <option value="15:00">15:00</option>
+                    <option value="15:30">15:30</option>
+                    <option value="16:00">16:00</option>
+                    <option value="16:30">16:30</option>
+                    <option value="17:00">17:00</option>
+                    <option value="17:30">17:30</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>المدة</label>
+                <div class="duration-options">
+                    <label class="duration-opt"><input type="radio" name="duration" value="30" checked><span>نصف ساعة</span></label>
+                    <label class="duration-opt"><input type="radio" name="duration" value="60"><span>ساعة</span></label>
+                    <label class="duration-opt"><input type="radio" name="duration" value="120"><span>ساعتين</span></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>سبب الحجز <span class="required">*</span></label>
+                <textarea name="reason" class="form-textarea" rows="3" placeholder="اكتب سبب الحجز..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>ملاحظات إضافية</label>
+                <textarea name="notes" class="form-textarea" rows="2" placeholder="أي ملاحظات إضافية..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">إرسال الطلب</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(day, time) {
+    document.getElementById('modalDay').value = day;
+    document.getElementById('modalDayDisplay').textContent = day;
+    const sel = document.getElementById('modalTime');
+    for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === time) { sel.selectedIndex = i; break; }
+    }
+    document.getElementById('appointmentModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('appointmentModal').style.display = 'none';
+}
+</script>
+{% endblock %}

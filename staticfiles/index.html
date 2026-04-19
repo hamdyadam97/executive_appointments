@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حجز المواعيد - Django</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --ap:#1E40AF; --as:#3B82F6; --al:#DBEAFE; --bg:#F8FAFC; --tx:#0F172A; --ts:#475569; --tm:#94A3B8; --bd:#E2E8F0; --ok:#059669; --okl:#D1FAE5; --wa:#D97706; --wal:#FEF3C7; --er:#DC2626; --erl:#FEE2E2; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--tx); font-size:14px; line-height:1.6; }
+        .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px; background:linear-gradient(135deg,#F8FAFC 0%,#E2E8F0 100%); }
+        .card { background:white; border-radius:16px; padding:48px; max-width:700px; width:100%; box-shadow:0 8px 32px rgba(15,23,42,0.12); }
+        .logo { width:64px; height:64px; border-radius:50%; background:var(--al); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+        .logo svg { color:var(--ap); }
+        h1 { font-size:26px; font-weight:700; text-align:center; margin-bottom:6px; }
+        .subtitle { color:var(--ts); text-align:center; font-size:15px; margin-bottom:32px; }
+        .section { margin-bottom:24px; padding:20px; border-radius:12px; background:var(--bg); }
+        .section h2 { font-size:16px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        .section h2 svg { color:var(--ap); }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th, td { padding:10px 12px; text-align:right; border-bottom:1px solid var(--bd); }
+        th { font-weight:600; color:var(--ts); background:rgba(0,0,0,0.02); }
+        .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; }
+        .b-emp { background:var(--okl); color:var(--ok); }
+        .b-sec { background:var(--wal); color:var(--wa); }
+        .b-exe { background:var(--al); color:var(--ap); }
+        .b-pass { background:var(--erl); color:var(--er); }
+        code { background:var(--al); color:var(--ap); padding:2px 8px; border-radius:4px; font-family:monospace; font-size:12px; }
+        .cmd { background:#1e293b; color:#e2e8f0; padding:16px 20px; border-radius:10px; font-family:monospace; font-size:13px; line-height:1.8; overflow-x:auto; }
+        .cmd .c { color:#64748b; }
+        .features { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .feature { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ts); }
+        .feature svg { color:var(--ok); flex-shrink:0; }
+        .footer { text-align:center; margin-top:24px; padding-top:20px; border-top:1px solid var(--bd); color:var(--tm); font-size:12px; }
+        @media(max-width:600px){ .features{grid-template-columns:1fr;} .card{padding:28px;} }
+    </style>
+</head>
+<body>
+<div class="hero">
+<div class="card">
+    <div class="logo"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+    <h1>نظام حجز المواعيد</h1>
+    <p class="subtitle">مدير تنفيذي - Django Backend - SQLite</p>
+
+    <div class="section">
+        <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> بيانات تسجيل الدخول</h2>
+        <table>
+            <tr><th>الدور</th><th>اسم المستخدم</th><th>كلمة المرور</th></tr>
+            <tr><td><span class="badge b-emp">موظف</span></td><td><code>employee</code></td><td><span class="badge b-pass">password</span></td></tr>
+            <tr><td><span class="badge b-sec">سكرتارية</span></td><td><code>secretary</code></td><td><span class="badge b-pass">password</span></td></tr>
+            <tr><td><span class="badge b-exe">مدير تنفيذي</span></td><td><code>executive</code></td><td><span class="badge b-pass">password</span></td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg> المميزات</h2>
+        <div class="features">
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> 3 أدوار (موظف/سكرتارية/مدير)</div>
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> كاليندر أسبوعي تفاعلي</div>
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> نظام طلبات مع حالات</div>
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> منع تعارض المواعيد</div>
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> نظام إشعارات</div>
+            <div class="feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> واجهة عربية RTL</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg> طريقة التشغيل</h2>
+        <div class="cmd">
+<span class="c"># 1. تثبيت Django</span><br>
+pip install django<br><br>
+<span class="c"># 2. التشغيل</span><br>
+cd executive_appointments<br>
+python manage.py runserver<br><br>
+<span class="c"># 3. فتح في المتصفح</span><br>
+http://127.0.0.1:8000<br><br>
+<span class="c"># إعادة ضبط البيانات التجريبية</span><br>
+python manage.py setup_demo
+        </div>
+    </div>
+
+    <div class="footer">بني بـ Django 6.0 + SQLite + HTML/CSS/JS</div>
+</div>
+</div>
+</body>
+</html>

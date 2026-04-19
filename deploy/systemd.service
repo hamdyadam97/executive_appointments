@@ -1,0 +1,15 @@
+[Unit]
+Description=Executive Appointments Gunicorn Daemon
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/executive_appointments
+EnvironmentFile=/var/www/executive_appointments/.env
+ExecStart=/var/www/executive_appointments/venv/bin/gunicorn --config gunicorn.conf.py executive_appointments.wsgi:application
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

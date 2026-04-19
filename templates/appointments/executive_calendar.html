@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load calendar_extras %}
+{% block title %}جدول مواعيدي - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">جدول مواعيدي</h1>
+    <p class="page-desc">المواعيد الموافق عليها</p>
+</div>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <div class="calendar-nav">
+            <a href="?week={{ week_offset|add:1 }}" class="calendar-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </a>
+            <a href="?week={{ week_offset|add:-1 }}" class="calendar-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <h2 class="calendar-title">الأسبوع من {{ week_start|date:"d M" }} إلى {{ week_end|date:"d M Y" }}</h2>
+        </div>
+        <a href="?week=0" class="btn-today">اليوم</a>
+    </div>
+
+    <div class="calendar-wrapper">
+        <div class="calendar-grid">
+            <div class="cal-header-cell cal-time-header">الوقت</div>
+            {% for day in week_days %}
+            <div class="cal-header-cell {% if day == today %}cal-today-header{% endif %}">
+                <div class="cal-day-name">{% if day.weekday == 5 %}السبت{% elif day.weekday == 6 %}الأحد{% elif day.weekday == 0 %}الإثنين{% elif day.weekday == 1 %}الثلاثاء{% elif day.weekday == 2 %}الأربعاء{% elif day.weekday == 3 %}الخميس{% else %}الجمعة{% endif %}</div>
+                <div class="cal-day-date {% if day == today %}cal-today-text{% endif %}">{{ day|date:"d/m" }}</div>
+            </div>
+            {% endfor %}
+
+            <div class="cal-time-col">
+                {% for slot in time_slots %}
+                <div class="cal-time-label">{{ slot }}</div>
+                {% endfor %}
+            </div>
+
+            {% for day in week_days %}
+            {% with day_str=day|date:"Y-m-d" %}
+            <div class="cal-day-col">
+                {% for slot in time_slots %}
+                    {% with cell=grid_data|dict_key:day_str|dict_key:slot %}
+                        {% if cell.type == 'free' %}
+                            <div class="cal-slot cal-slot-free-readonly"></div>
+                        {% else %}
+                            {% if cell.is_start %}
+                            <div class="cal-slot cal-slot-apt status-approved">
+                                <span class="apt-text">{{ cell.appointment.employee.name }}</span>
+                                <span class="apt-sub">{{ cell.appointment.reason|truncatechars:20 }}</span>
+                            </div>
+                            {% else %}
+                            <div class="cal-slot cal-slot-apt-cont status-approved"></div>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="calendar-legend">
+        <div class="legend-item"><div class="legend-box" style="background:var(--success-light);border-color:var(--success)"></div><span>محجوز</span></div>
+    </div>
+</div>
+{% endblock %}

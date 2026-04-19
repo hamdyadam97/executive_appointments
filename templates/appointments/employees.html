@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}الموظفين - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">الموظفين</h1>
+    <p class="page-desc">قائمة الموظفين وإحصائياتهم</p>
+</div>
+
+<!-- Filters & Search -->
+<div class="filter-bar">
+    <form method="get" class="filter-form" id="filterForm">
+        <div class="filter-group">
+            <input type="text" name="search" id="searchInput" value="{{ search }}" placeholder="بحث باسم الموظف أو الرقم..." class="form-input search-input" autocomplete="off">
+        </div>
+        <div class="filter-group">
+            <select name="branch" id="branchSelect" class="form-select">
+                <option value="">كل الفروع</option>
+                {% for b in branches %}
+                <option value="{{ b.id }}" {% if branch_filter == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" id="searchBtn" style="display:none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            بحث
+        </button>
+        {% if search or branch_filter %}
+        <a href="{% url 'employees' %}" class="btn btn-danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            مسح
+        </a>
+        {% endif %}
+    </form>
+    <a href="{% url 'employee_create' %}" class="btn btn-success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        إضافة موظف جديد
+    </a>
+</div>
+
+{% if page_obj %}
+<div class="employees-grid">
+    {% for emp in page_obj %}
+    <div class="employee-card">
+        <div class="employee-header">
+            <div class="user-avatar-large">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <div class="employee-info">
+                <h3 class="employee-name">{{ emp.name|default:emp.username }}</h3>
+                <span class="employee-username">{{ emp.username }}</span>
+                {% if emp.branch %}
+                <span class="employee-branch">{{ emp.branch.name }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="employee-stats">
+            <div class="employee-stat">
+                <span class="emp-stat-num">{{ emp.total_appointments }}</span>
+                <span class="emp-stat-label">إجمالي الطلبات</span>
+            </div>
+            <div class="employee-stat">
+                <span class="emp-stat-num">{{ emp.approved_appointments }}</span>
+                <span class="emp-stat-label">الموافق عليها</span>
+            </div>
+            <div class="employee-stat">
+                <span class="emp-stat-num">{{ emp.total_duration|default:0 }}</span>
+                <span class="emp-stat-label">الدقائق المستهلكة</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?{% if search %}search={{ search }}&{% endif %}{% if branch_filter %}branch={{ branch_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pagination-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        السابق
+    </a>
+    {% else %}
+    <span class="pagination-link disabled">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        السابق
+    </span>
+    {% endif %}
+
+    <div class="pagination-pages">
+        {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <span class="pagination-page active">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?{% if search %}search={{ search }}&{% endif %}{% if branch_filter %}branch={{ branch_filter }}&{% endif %}page={{ num }}" class="pagination-page">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_next %}
+    <a href="?{% if search %}search={{ search }}&{% endif %}{% if branch_filter %}branch={{ branch_filter }}&{% endif %}page={{ page_obj.next_page_number }}" class="pagination-link">
+        التالي
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </a>
+    {% else %}
+    <span class="pagination-link disabled">
+        التالي
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <p class="empty-title">لا يوجد موظفين</p>
+    <p class="empty-desc">{% if search or branch_filter %}لا توجد نتائج مطابقة{% else %}لم يتم إضافة موظفين بعد{% endif %}</p>
+</div>
+{% endif %}
+
+<script>
+(function() {
+    const searchInput = document.getElementById('searchInput');
+    const branchSelect = document.getElementById('branchSelect');
+    const filterForm = document.getElementById('filterForm');
+    let debounceTimer;
+
+    function submitForm() {
+        filterForm.submit();
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(submitForm, 400);
+        });
+    }
+
+    if (branchSelect) {
+        branchSelect.addEventListener('change', submitForm);
+    }
+})();
+</script>
+{% endblock %}

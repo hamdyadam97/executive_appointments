@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}الفروع - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">الفروع</h1>
+    <p class="page-desc">إدارة فروع الشركة</p>
+</div>
+
+<div class="filter-row">
+    <a href="{% url 'branch_create' %}" class="btn btn-success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        إضافة فرع جديد
+    </a>
+</div>
+
+{% if branches %}
+<div class="employees-grid">
+    {% for branch in branches %}
+    <div class="employee-card">
+        <div class="employee-header">
+            <div class="user-avatar-large">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <div class="employee-info">
+                <h3 class="employee-name">{{ branch.name }}</h3>
+                <span class="employee-username">{{ branch.employee_count }} موظف</span>
+            </div>
+        </div>
+        {% if branch.address %}
+        <div class="request-info" style="margin-bottom:8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            {{ branch.address }}
+        </div>
+        {% endif %}
+        {% if branch.phone %}
+        <div class="request-info" style="margin-bottom:12px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            {{ branch.phone }}
+        </div>
+        {% endif %}
+        <div class="detail-actions">
+            <a href="{% url 'branch_edit' branch.pk %}" class="btn btn-primary" style="height:36px;font-size:13px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                تعديل
+            </a>
+            <a href="{% url 'branch_delete' branch.pk %}" class="btn btn-danger" style="height:36px;font-size:13px" onclick="return confirm('هل أنت متأكد من حذف هذا الفرع؟')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                حذف
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    <p class="empty-title">لا توجد فروع</p>
+    <p class="empty-desc">لم يتم إضافة أي فروع بعد</p>
+</div>
+{% endif %}
+{% endblock %}

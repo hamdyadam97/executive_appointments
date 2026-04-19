@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}طلباتي - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">طلباتي</h1>
+    <p class="page-desc">متابعة حالة طلبات الحجز</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <a href="?status=all" class="stat-card {% if status_filter == 'all' %}stat-active{% endif %}">
+        <span class="stat-num">{{ counts.all }}</span>
+        <span class="stat-label">الكل</span>
+    </a>
+    <a href="?status=pending" class="stat-card {% if status_filter == 'pending' %}stat-active{% endif %}">
+        <span class="stat-num">{{ counts.pending }}</span>
+        <span class="stat-label">قيد المراجعة</span>
+    </a>
+    <a href="?status=approved" class="stat-card {% if status_filter == 'approved' %}stat-active{% endif %}">
+        <span class="stat-num">{{ counts.approved }}</span>
+        <span class="stat-label">تمت الموافقة</span>
+    </a>
+    <a href="?status=rejected" class="stat-card {% if status_filter == 'rejected' %}stat-active{% endif %}">
+        <span class="stat-num">{{ counts.rejected }}</span>
+        <span class="stat-label">تم الرفض</span>
+    </a>
+</div>
+
+<!-- Filter Pills -->
+<div class="filter-row">
+    <a href="?status=all" class="filter-pill {% if status_filter == 'all' %}active{% endif %}">الكل</a>
+    <a href="?status=pending" class="filter-pill {% if status_filter == 'pending' %}active{% endif %}">قيد المراجعة</a>
+    <a href="?status=approved" class="filter-pill {% if status_filter == 'approved' %}active{% endif %}">تمت الموافقة</a>
+    <a href="?status=rejected" class="filter-pill {% if status_filter == 'rejected' %}active{% endif %}">تم الرفض</a>
+</div>
+
+<!-- Requests List -->
+{% if appointments %}
+<div class="requests-list">
+    {% for apt in appointments %}
+    <div class="request-card">
+        <div class="request-header">
+            <span class="status-badge status-{{ apt.status }}">{{ apt.status_label }}</span>
+            <span class="request-date">{{ apt.created_at|date:"d/m/Y" }}</span>
+        </div>
+        <div class="request-body">
+            <div class="request-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                {{ apt.day|date:"l، d M Y" }}
+            </div>
+            <div class="request-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {{ apt.start_time|date:"H:i" }} - {{ apt.end_time|date:"H:i" }}
+            </div>
+            <div class="request-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                {{ apt.reason }}
+            </div>
+        </div>
+        <div class="request-actions">
+            <a href="{% url 'appointment_detail' apt.pk %}" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                عرض التفاصيل
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"></path></svg>
+    <p class="empty-title">لا توجد طلبات</p>
+    <p class="empty-desc">{% if status_filter == 'all' %}لم تقم بإرسال أي طلبات حجز بعد{% else %}لا توجد طلبات بهذه الحالة{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

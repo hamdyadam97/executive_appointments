@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}إضافة موظف جديد - نظام حجز المواعيد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">إضافة موظف جديد</h1>
+    <p class="page-desc">إنشاء حساب موظف جديد في النظام</p>
+</div>
+
+<div class="detail-card" style="max-width:520px">
+    <form method="post" class="modal-form" style="padding:0">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div style="color:var(--danger);font-size:12px">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="detail-actions">
+            <button type="submit" class="btn btn-success">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                إضافة الموظف
+            </button>
+            <a href="{% url 'employees' %}" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                رجوع
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
