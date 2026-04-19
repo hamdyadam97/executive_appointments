@@ -23,14 +23,14 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(request, email=email, password=password)
             if user is not None:
                 auth_login(request, user)
                 return redirect('dashboard')
             else:
-                messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة')
+                messages.error(request, 'البريد الإلكتروني أو كلمة المرور غير صحيحة')
     else:
         form = LoginForm()
 

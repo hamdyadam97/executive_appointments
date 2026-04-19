@@ -4,12 +4,12 @@ from .models import Appointment, User, Branch
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'placeholder': 'أدخل اسم المستخدم',
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'أدخل البريد الإلكتروني',
             'class': 'form-input',
         }),
-        label='اسم المستخدم',
+        label='البريد الإلكتروني',
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
